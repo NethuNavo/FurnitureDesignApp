@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FurniVision
 
-## Getting Started
+FurniVision is a Next.js (App Router) interior design web app with:
+- 2D room planning (drag/drop furniture)
+- 3D room preview
+- saved design flows
+- mock auth + design APIs (in-memory)
 
-First, run the development server:
+## Tech Stack
+- Next.js 16 (App Router)
+- React + TypeScript
+- Tailwind CSS
+- Three.js (3D view)
 
+## Run Locally
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Main Frontend Routes
+- `/login`
+- `/create-account`
+- `/dashboard`
+- `/new-design`
+- `/edit-2d` (reuses new-design editor)
+- `/saved-designs`
+- `/3d-design`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## API Routes (App Router)
+All APIs are under `app/api`.
 
-## Learn More
+### Auth
+- `POST /api/auth/login`
+- `POST /api/auth/register`
+- `GET /api/auth/me`
 
-To learn more about Next.js, take a look at the following resources:
+### Designs
+- `GET /api/designs`
+- `POST /api/designs`
+- `GET /api/designs/[id]`
+- `PUT /api/designs/[id]`
+- `DELETE /api/designs/[id]`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API Data Store
+- In-memory store: `app/api/_lib/store.ts`
+- Data resets on server restart.
+- Seed user included:
+  - email: `emma.davis@example.com`
+  - password: `Password@123`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Current Persistence Behavior
+- Frontend still uses `localStorage` for design editing/viewing flow:
+  - `furnivision_design`
+  - `furnivision_saved_designs`
+- APIs exist, but not all UI screens are fully migrated to API calls yet.
 
-## Deploy on Vercel
+## Backend Handoff Notes
+If backend teammate is integrating a real DB:
+1. Keep current API route paths stable.
+2. Replace in-memory store in `app/api/_lib/store.ts` with DB layer.
+3. Preserve payload shape used by:
+   - `app/new-design/page.tsx`
+   - `app/saved-designs/page.tsx`
+   - `app/3d-design/page.tsx`
+4. Add proper auth/session strategy (JWT/cookies) for `/api/auth/me`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project Structure (Key Files)
+- `app/new-design/page.tsx` - 2D editor
+- `app/3d-design/page.tsx` - 3D renderer
+- `app/saved-designs/page.tsx` - saved design list + actions
+- `components/profile-menu.tsx` - top-right profile menu
+- `components/site-footer.tsx` - shared footer
+- `app/api/**` - mock backend routes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notes
+- UI font theme is primarily Inter.
+- 3D scene uses OrbitControls.
+- 2D editor uses canvas for room + furniture rendering.
