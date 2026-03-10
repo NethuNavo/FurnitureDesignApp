@@ -16,6 +16,12 @@ import {
   saveToken,
   getToken,
   clearToken,
+<<<<<<< HEAD
+=======
+  saveUser,
+  getUser,
+  clearUser,
+>>>>>>> 3fe118264b7dcac3928a5c305f212bccd13a5600
 } from "@/lib/api";
 
 interface User {
@@ -30,7 +36,11 @@ interface UseAuthReturn {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+<<<<<<< HEAD
   login: (email: string, password: string) => Promise<boolean>;
+=======
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+>>>>>>> 3fe118264b7dcac3928a5c305f212bccd13a5600
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -49,6 +59,7 @@ export function useAuth(): UseAuthReturn {
     setIsLoading(true);
     try {
       const storedToken = getToken();
+<<<<<<< HEAD
       if (storedToken) {
         const result = await getCurrentUser(storedToken);
         if (result.data) {
@@ -59,6 +70,30 @@ export function useAuth(): UseAuthReturn {
           clearToken();
           setToken(null);
           setUser(null);
+=======
+      const storedUser = getUser();
+      if (storedUser && storedToken) {
+        setToken(storedToken);
+        setUser(storedUser);
+      }
+      if (storedToken) {
+        try {
+          const result = await getCurrentUser(storedToken);
+          if (result.data) {
+            setToken(storedToken);
+            setUser(result.data.user);
+            saveUser(result.data.user);
+          } else {
+            // API error, token invalid
+            clearToken();
+            clearUser();
+            setToken(null);
+            setUser(null);
+          }
+        } catch (error) {
+          // Network error, keep stored user
+          console.error("Auth check network error:", error);
+>>>>>>> 3fe118264b7dcac3928a5c305f212bccd13a5600
         }
       }
     } catch (error) {
@@ -68,23 +103,41 @@ export function useAuth(): UseAuthReturn {
     }
   };
 
+<<<<<<< HEAD
   const login = async (email: string, password: string): Promise<boolean> => {
+=======
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+>>>>>>> 3fe118264b7dcac3928a5c305f212bccd13a5600
     setIsLoading(true);
     try {
       const result = await apiLogin(email, password);
       if (result.error) {
         console.error("Login failed:", result.error);
+<<<<<<< HEAD
         return false;
+=======
+        return { success: false, error: result.error };
+>>>>>>> 3fe118264b7dcac3928a5c305f212bccd13a5600
       }
 
       const { token: newToken, user: newUser } = result.data!;
       saveToken(newToken);
+<<<<<<< HEAD
       setToken(newToken);
       setUser(newUser);
       return true;
     } catch (error) {
       console.error("Login error:", error);
       return false;
+=======
+      saveUser(newUser);
+      setToken(newToken);
+      setUser(newUser);
+      return { success: true };
+    } catch (error) {
+      console.error("Login error:", error);
+      return { success: false, error: "Network error occurred" };
+>>>>>>> 3fe118264b7dcac3928a5c305f212bccd13a5600
     } finally {
       setIsLoading(false);
     }
@@ -100,6 +153,10 @@ export function useAuth(): UseAuthReturn {
       console.error("Logout error:", error);
     } finally {
       clearToken();
+<<<<<<< HEAD
+=======
+      clearUser();
+>>>>>>> 3fe118264b7dcac3928a5c305f212bccd13a5600
       setToken(null);
       setUser(null);
       setIsLoading(false);

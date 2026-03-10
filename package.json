@@ -1,5 +1,6 @@
 {
   "name": "hci-project-grp-24",
+<<<<<<< HEAD
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -31,4 +32,20 @@
     "tailwindcss": "^4.2.1",
     "typescript": "^5"
   }
+=======
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "dev": "cd hci-project-grp-24 && npm run dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+>>>>>>> 3fe118264b7dcac3928a5c305f212bccd13a5600
 }
