@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # FurniVision
 
 FurniVision is a Next.js (App Router) interior design web app with:
