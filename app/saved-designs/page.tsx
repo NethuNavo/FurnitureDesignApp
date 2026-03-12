@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import logoImage from "@/images/logo.jpeg";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import ProfileMenu from "@/components/profile-menu";
@@ -322,8 +324,8 @@ export default function SavedDesignsPage() {
           <header className="fixed inset-x-0 top-0 z-50 w-full overflow-visible rounded-none border border-[#e8e2da] border-x-0 border-t-0 bg-white/80 text-[#4d3525] shadow-[0_1px_6px_rgba(31,31,31,0.05)] backdrop-blur-md">
             <div className="mx-auto flex w-full max-w-[1400px] flex-wrap items-center justify-between gap-3 px-5 py-3 md:px-8">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#b7a087] bg-[#825a3c] text-sm font-semibold text-[#f7ebdf]">
-                  FV
+                <div className="h-10 w-10">
+                  <Image src={logoImage} alt="FurniVision logo" width={40} height={40} />
                 </div>
                 <p className="text-xl font-semibold [font-family:Inter,sans-serif]">FurniVision</p>
               </div>

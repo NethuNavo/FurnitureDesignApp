@@ -9,7 +9,9 @@
  * const designs = await getDesigns(token)
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
 
 interface ApiResponse<T = any> {
   data?: T;
@@ -118,7 +120,7 @@ export async function getProfile(token: string): Promise<ApiResponse<{ user: any
 
 export async function updateProfile(
   token: string,
-  data: { name?: string; email?: string }
+  data: { name?: string; email?: string; profilePhoto?: string; removePhoto?: boolean }
 ): Promise<ApiResponse<{ user: any }>> {
   return apiCall("/api/profile", {
     method: "PUT",
