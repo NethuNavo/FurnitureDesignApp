@@ -8,6 +8,8 @@ import {
 type UpdateProfileBody = {
   name?: string;
   email?: string;
+  profilePhoto?: string; // base64 or URL
+  removePhoto?: boolean;
 };
 
 export async function GET(request: Request) {
@@ -83,6 +85,16 @@ export async function PUT(request: Request) {
         );
       }
       user.email = newEmail;
+    }
+
+    // handle profile photo updates / removal
+    if (body.removePhoto) {
+      user.profilePhoto = "";
+    } else if (body.profilePhoto) {
+      // very basic validation: string length
+      if (typeof body.profilePhoto === "string" && body.profilePhoto.length > 0) {
+        user.profilePhoto = body.profilePhoto;
+      }
     }
 
     await user.save();
