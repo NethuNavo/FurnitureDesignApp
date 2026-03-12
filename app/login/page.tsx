@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import vaseImage from "@/images/3d-vase.png";
+import logoImage from "@/images/logo.jpeg";
 import { login as apiLogin, saveToken } from "@/lib/api";
 
 // Main sign-in page component.
@@ -66,8 +67,8 @@ export default function LoginPage() {
           {/* Left panel: login form and actions. */}
           <div className="overflow-hidden rounded-l-3xl bg-[linear-gradient(165deg,rgba(252, 252, 251, 0.95)_0%,rgba(254, 243, 231, 0.82)_100%)] p-7 md:p-10">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[linear-gradient(145deg,#9e7350,#6f4c34)] text-sm font-semibold text-[#f8eee4]">
-                FV
+              <div className="h-10 w-10">
+                <Image src={logoImage} alt="FurniVision logo" width={40} height={40} />
               </div>
               <div className="text-xl font-semibold tracking-wide text-[#2f2218]">FurniVision</div>
             </div>

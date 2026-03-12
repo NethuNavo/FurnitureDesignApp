@@ -6,6 +6,7 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
+  profilePhoto?: string; // base64 string or URL
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,6 +28,10 @@ const userSchema = new Schema<IUser>(
     password: {
       type: String,
       required: true,
+    },
+    profilePhoto: {
+      type: String, // could store base64 or external URL
+      default: "",
     },
   },
   { timestamps: true }

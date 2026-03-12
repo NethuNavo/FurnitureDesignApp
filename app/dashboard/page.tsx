@@ -1,10 +1,12 @@
 "use client";
 
 // Dashboard page imports.
+import Image from "next/image";
 import Link from "next/link";
 import ProfileMenu from "@/components/profile-menu";
 import SiteFooter from "@/components/site-footer";
 import bedroomImage from "@/images/bedroom.jpg";
+import logoImage from "@/images/logo.jpeg";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useEffect } from "react";
 
@@ -34,8 +36,8 @@ export default function DashboardPage() {
               <div className="mx-auto flex w-full max-w-[1400px] flex-wrap items-center justify-between gap-3 px-5 py-3 md:px-8">
                 {/* Brand */}
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#b7a087] bg-[#825a3c] text-sm font-semibold text-[#f7ebdf]">
-                    FV
+                  <div className="h-10 w-10">
+                    <Image src={logoImage} alt="FurniVision logo" width={40} height={40} />
                   </div>
                   <p className="text-xl font-semibold [font-family:Inter,sans-serif]">
                     FurniVision
@@ -83,9 +85,18 @@ export default function DashboardPage() {
               <div className="relative mx-auto w-full max-w-[1100px] px-6 py-12 text-center md:px-8 md:py-14">
                 <div className="mx-auto">
                   {/* Welcome + hero text */}
-                  <p className="mb-3 text-lg font-semibold text-[#5a3f2e] md:text-2xl">
-                    Welcome, {user?.name || 'Designer'}
-                  </p>
+                  <div className="mb-3 flex items-center justify-center gap-3 text-lg font-semibold text-[#5a3f2e] md:text-2xl">
+                    {user?.profilePhoto ? (
+                      <span className="relative h-8 w-8 overflow-hidden rounded-full">
+                        <img
+                          src={user.profilePhoto}
+                          alt="Your avatar"
+                          className="h-full w-full object-cover"
+                        />
+                      </span>
+                    ) : null}
+                    <p>Welcome, {user?.name || 'Designer'}</p>
+                  </div>
                   <h1 className="text-3xl font-semibold leading-tight text-[#3f2b1f] md:text-4xl">
                     Design Your Dream Space
                   </h1>

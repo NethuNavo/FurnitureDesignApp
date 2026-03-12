@@ -80,10 +80,6 @@ export default function ChangePasswordPage() {
                 <p className="text-sm font-medium text-[#4d3525]">Validation rules</p>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[#6b4e3a]">
                   <li>At least 8 characters</li>
-                  <li>Include at least one uppercase letter</li>
-                  <li>Include at least one lowercase letter</li>
-                  <li>Include at least one number</li>
-                  <li>Include at least one special character</li>
                 </ul>
               </div>
 

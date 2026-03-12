@@ -2,39 +2,84 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { FormEvent, useState, useEffect } from "react";
+import { FormEvent, useState, useEffect, useRef } from "react";
 import bedroomImage from "@/images/bedroom.jpg";
 import profileIconImage from "@/images/Profile icon.png";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { updateProfile, changePassword } from "@/lib/api";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const passwordRuleRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+const passwordRuleRegex = /^.{8,}$/; // at least 8 characters
 
 export default function ProfilePage() {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const { user, token, isAuthenticated } = useAuth();
+  const { user, token, isAuthenticated, refreshUser } = useAuth();
   const [userName, setUserName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
+  const [profilePhoto, setProfilePhoto] = useState(user?.profilePhoto || "");
   const [profileErrors, setProfileErrors] = useState<{ userName?: string; email?: string }>({});
   const [profileMessage, setProfileMessage] = useState<string | null>(null);
+  const [photoMessage, setPhotoMessage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handlePhotoSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64 = reader.result as string;
+      if (!token) return;
+      const res = await updateProfile(token, { profilePhoto: base64 });
+      if (res.error) {
+        setPhotoMessage(res.error);
+      } else {
+        setProfilePhoto(base64);
+        setPhotoMessage("Profile photo updated successfully.");
+        await refreshUser();
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = async () => {
+    if (!token) return;
+    const res = await updateProfile(token, { removePhoto: true });
+    if (res.error) {
+      setPhotoMessage(res.error);
+    } else {
+      setProfilePhoto("");
+      setPhotoMessage("Profile photo updated successfully.");
+      await refreshUser();
+    }
+  };
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   // when auth user loads, populate fields
+  // we also sync the profile photo only when the value actually changes
+  // which avoids overwriting the preview while the user is choosing a file
   useEffect(() => {
     if (user) {
       setUserName(user.name);
       setEmail(user.email);
+      // only update the photo state if it differs from what we already have
+      // this allows the image preview (base64) to stay visible until we get
+      // the updated user back from the server
+      if (user.profilePhoto !== undefined && user.profilePhoto !== profilePhoto) {
+        setProfilePhoto(user.profilePhoto || "");
+      }
     }
-  }, [user]);
-  const [passwordErrors, setPasswordErrors] = useState<{ currentPassword?: string; newPassword?: string }>({});
+  }, [user, profilePhoto]);
+  const [passwordErrors, setPasswordErrors] = useState<{ currentPassword?: string; newPassword?: string; confirmPassword?: string }>({});
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
 
-  const onProfileSave = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  // common save function (can be invoked on blur or submit)
+  const saveProfile = async () => {
     const nextErrors: { userName?: string; email?: string } = {};
 
     if (userName.trim().length < 2) {
@@ -63,12 +108,18 @@ export default function ProfilePage() {
       setProfileMessage(result.error);
     } else {
       setProfileMessage("Profile updated successfully.");
+      await refreshUser();
     }
+  };
+
+  const onProfileSave = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await saveProfile();
   };
 
   const onPasswordSave = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const nextErrors: { currentPassword?: string; newPassword?: string } = {};
+    const nextErrors: { currentPassword?: string; newPassword?: string; confirmPassword?: string } = {};
 
     if (!currentPassword.trim()) {
       nextErrors.currentPassword = "Current password is required.";
@@ -76,10 +127,12 @@ export default function ProfilePage() {
     if (!newPassword.trim()) {
       nextErrors.newPassword = "New password is required.";
     } else if (!passwordRuleRegex.test(newPassword)) {
-      nextErrors.newPassword =
-        "Password must be 8+ chars with uppercase, lowercase, number and special character.";
+      nextErrors.newPassword = "Password must be at least 8 characters.";
     } else if (newPassword === currentPassword) {
       nextErrors.newPassword = "New password must be different from current password.";
+    }
+    if (newPassword !== confirmPassword) {
+      nextErrors.confirmPassword = "Passwords do not match.";
     }
 
     setPasswordErrors(nextErrors);
@@ -97,9 +150,10 @@ export default function ProfilePage() {
     if (result.error) {
       setPasswordMessage(result.error);
     } else {
-      setPasswordMessage("Password updated successfully.");
+      setPasswordMessage("Password changed successfully.");
       setCurrentPassword("");
       setNewPassword("");
+      setConfirmPassword("");
       setTimeout(() => {
         setIsPasswordModalOpen(false);
         setPasswordMessage(null);
@@ -128,20 +182,50 @@ export default function ProfilePage() {
             <h1 className="text-center text-3xl font-semibold text-[#3f2b1f] md:text-4xl">My Profile</h1>
             <div className="mt-6 flex flex-col items-center">
               <div className="relative h-32 w-32 overflow-hidden rounded-full border border-[#b7a087] bg-[#e8ddd2]">
-                <Image
-                  src={profileIconImage}
-                  alt="Profile placeholder"
-                  fill
-                  className="object-cover"
-                  sizes="128px"
+                {profilePhoto ? (
+                  <img
+                    src={profilePhoto}
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={profileIconImage}
+                    alt="Profile placeholder"
+                    fill
+                    className="object-cover"
+                    sizes="128px"
+                  />
+                )}
+              </div>
+              <div className="mt-3 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="rounded-lg border border-[#b7a087] bg-white px-4 py-1.5 text-sm text-[#4d3525] transition hover:bg-[#efe4d8]"
+                >
+                  {profilePhoto ? "Change Image" : "Add a New Image"}
+                </button>
+                {profilePhoto ? (
+                  <button
+                    type="button"
+                    onClick={handleRemovePhoto}
+                    className="rounded-lg border border-[#b7a087] bg-white px-4 py-1.5 text-sm text-[#4d3525] transition hover:bg-[#efe4d8]"
+                  >
+                    Remove
+                  </button>
+                ) : null}
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handlePhotoSelected}
+                  className="hidden"
                 />
               </div>
-              <button
-                type="button"
-                className="mt-3 rounded-lg border border-[#b7a087] bg-white px-4 py-1.5 text-sm text-[#4d3525] transition hover:bg-[#efe4d8]"
-              >
-                Add a New Image
-              </button>
+              {photoMessage ? (
+                <p className="mt-2 text-sm text-[#2f6b3f]">{photoMessage}</p>
+              ) : null}
             </div>
 
             <form className="mx-auto mt-7 w-full max-w-[640px] space-y-4" onSubmit={onProfileSave}>
@@ -151,6 +235,7 @@ export default function ProfilePage() {
                   type="text"
                   value={userName}
                   onChange={(event) => setUserName(event.target.value)}
+                  onBlur={saveProfile}
                   className="w-full rounded-xl border border-[#b7a087] bg-[#f7ebdf] px-4 py-2.5 text-xl outline-none"
                 />
                 {profileErrors.userName ? (
@@ -164,6 +249,7 @@ export default function ProfilePage() {
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
+                  onBlur={saveProfile}
                   className="w-full rounded-xl border border-[#b7a087] bg-[#f7ebdf] px-4 py-2.5 text-xl outline-none"
                 />
                 {profileErrors.email ? (
@@ -221,13 +307,22 @@ export default function ProfilePage() {
                 <form className="space-y-4" onSubmit={onPasswordSave}>
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-[#5a463a]">Current Password</label>
-                    <input
-                      type="password"
-                      placeholder="Enter current password"
-                      value={currentPassword}
-                      onChange={(event) => setCurrentPassword(event.target.value)}
-                      className="w-full rounded-xl border border-[#b7a087] bg-[#f7ebdf] px-4 py-2.5 text-base outline-none"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showCurrent ? "text" : "password"}
+                        placeholder="Enter current password"
+                        value={currentPassword}
+                        onChange={(event) => setCurrentPassword(event.target.value)}
+                        className="w-full rounded-xl border border-[#b7a087] bg-[#f7ebdf] px-4 py-2.5 text-base outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrent((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#6b4e3a]"
+                      >
+                        {showCurrent ? "Hide" : "Show"}
+                      </button>
+                    </div>
                     {passwordErrors.currentPassword ? (
                       <p className="mt-1 text-xs text-[#b13c2f]">{passwordErrors.currentPassword}</p>
                     ) : null}
@@ -235,26 +330,54 @@ export default function ProfilePage() {
 
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-[#5a463a]">New Password</label>
-                    <input
-                      type="password"
-                      placeholder="Enter new password"
-                      value={newPassword}
-                      onChange={(event) => setNewPassword(event.target.value)}
-                      className="w-full rounded-xl border border-[#b7a087] bg-[#f7ebdf] px-4 py-2.5 text-base outline-none"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showNew ? "text" : "password"}
+                        placeholder="Enter new password"
+                        value={newPassword}
+                        onChange={(event) => setNewPassword(event.target.value)}
+                        className="w-full rounded-xl border border-[#b7a087] bg-[#f7ebdf] px-4 py-2.5 text-base outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNew((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#6b4e3a]"
+                      >
+                        {showNew ? "Hide" : "Show"}
+                      </button>
+                    </div>
                     {passwordErrors.newPassword ? (
                       <p className="mt-1 text-xs text-[#b13c2f]">{passwordErrors.newPassword}</p>
                     ) : null}
                   </div>
 
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-[#5a463a]">Confirm Password</label>
+                    <div className="relative">
+                      <input
+                        type={showConfirm ? "text" : "password"}
+                        placeholder="Confirm new password"
+                        value={confirmPassword}
+                        onChange={(event) => setConfirmPassword(event.target.value)}
+                        className="w-full rounded-xl border border-[#b7a087] bg-[#f7ebdf] px-4 py-2.5 text-base outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirm((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#6b4e3a]"
+                      >
+                        {showConfirm ? "Hide" : "Show"}
+                      </button>
+                    </div>
+                    {passwordErrors.confirmPassword ? (
+                      <p className="mt-1 text-xs text-[#b13c2f]">{passwordErrors.confirmPassword}</p>
+                    ) : null}
+                  </div>
+
                   <div className="rounded-xl border border-[#d8cabc] bg-[#fffaf5] px-4 py-3">
-                    <p className="text-sm font-medium text-[#4d3525]">Validation rules</p>
+                    <p className="text-sm font-medium text-[#4d3525]">Validation rule</p>
                     <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[#6b4e3a]">
                       <li>At least 8 characters</li>
-                      <li>Include at least one uppercase letter</li>
-                      <li>Include at least one lowercase letter</li>
-                      <li>Include at least one number</li>
-                      <li>Include at least one special character</li>
                     </ul>
                   </div>
 

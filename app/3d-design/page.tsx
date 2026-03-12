@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import Image from "next/image";
+import logoImage from "@/images/logo.jpeg";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -98,8 +99,18 @@ function clampFurnitureTopLeftMeters(
 
 export default function ThreeDDesignPage() {
   // Optional design id when opened from Saved Designs.
-  const searchParams = useSearchParams();
   const { token } = useAuth();
+  const [sourceDesignId, setSourceDesignId] = useState<string | null>(null);
+
+  // Read query parameter on client side (avoids useSearchParams prerender warnings).
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      setSourceDesignId(params.get("designId"));
+    } catch {
+      setSourceDesignId(null);
+    }
+  }, []);
 
   // DOM mount for WebGL canvas.
   const mountRef = useRef<HTMLDivElement | null>(null);
@@ -116,7 +127,6 @@ export default function ThreeDDesignPage() {
   const [storedDesign, setStoredDesign] = useState<StoredDesign | null>(null);
   const [leftMode, setLeftMode] = useState<"rotate" | "pan">("rotate");
   const [selectedFurnitureInfo, setSelectedFurnitureInfo] = useState<SelectedFurnitureInfo | null>(null);
-  const sourceDesignId = searchParams.get("designId");
   const isFromSavedDesign = Boolean(sourceDesignId);
   const backToSavedHref = "/saved-designs";
   const editIn2DHref = sourceDesignId
@@ -948,7 +958,12 @@ export default function ThreeDDesignPage() {
                 </Link>
               )}
             </div>
-            <h1 className="text-3xl [font-family:Inter,sans-serif]">3D Design</h1>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg border border-[#b7a087] bg-[#825a3c] p-1">
+                <Image src={logoImage} alt="FurniVision logo" width={36} height={36} />
+              </div>
+              <h1 className="text-3xl [font-family:Inter,sans-serif]">3D Design</h1>
+            </div>
             <div className="w-24" />
           </div>
         </header>

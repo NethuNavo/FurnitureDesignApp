@@ -7,6 +7,8 @@ import { useState, type FormEvent } from "react";
 import { register as apiRegister, saveToken } from "@/lib/api";
 
 // Create Account screen for new users.
+import Image from "next/image";
+import logoImage from "@/images/logo.jpeg";
 export default function CreateAccountPage() {
   // Router used for redirect after successful signup.
   const router = useRouter();
@@ -66,6 +68,12 @@ export default function CreateAccountPage() {
     // Full-page centered create-account card.
     <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_15%_20%,#fffdf9_0%,#f3e8dc_42%,#d5b79b_74%,#a98568_100%)] px-5 py-10 md:py-0">
       <div className="mx-auto w-full max-w-xl rounded-3xl border border-white/55 bg-[linear-gradient(165deg,rgba(255,255,255,0.95)_0%,rgba(250,243,235,0.82)_100%)] p-7 shadow-[0_20px_50px_rgba(33,19,10,0.2)]">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="h-10 w-10">
+            <Image src={logoImage} alt="FurniVision logo" width={40} height={40} />
+          </div>
+          <div className="text-xl font-semibold tracking-wide text-[#2b2017]">FurniVision</div>
+        </div>
         <h1 className="text-4xl font-semibold tracking-tight text-[#2b2017]">Create Account</h1>
         <p className="mt-2 text-sm text-[#5d4939]">Set up your FurniVision account to get started.</p>
 

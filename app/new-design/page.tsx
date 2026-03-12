@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ProfileMenu from "@/components/profile-menu";
 import SiteFooter from "@/components/site-footer";
 import bedroomImage from "@/images/bedroom.jpg";
+import logoImage from "@/images/logo.jpeg";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { createDesign, updateDesign, getDesignById } from "@/lib/api";
@@ -242,11 +244,22 @@ function getLShapeCutSizes(width: number, length: number) {
 export default function NewDesignPage() {
   // --- Routing context ---
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const isEditorOnlyPage = pathname === "/edit-2d";
-  const sourceDesignId = searchParams.get("designId");
+  const [currentPathname, setCurrentPathname] = useState<string>("");
+  const [sourceDesignId, setSourceDesignId] = useState<string | null>(null);
+  const isEditorOnlyPage = currentPathname === "/edit-2d";
   const backToSavedHref = "/saved-designs";
+
+  // Read route + query params on client (avoids useSearchParams/usePathname prerender warnings).
+  useEffect(() => {
+    try {
+      setCurrentPathname(window.location.pathname);
+      const params = new URLSearchParams(window.location.search);
+      setSourceDesignId(params.get("designId"));
+    } catch {
+      setCurrentPathname("");
+      setSourceDesignId(null);
+    }
+  }, []);
 
   // --- Room-level state ---
   const [roomWidth, setRoomWidth] = useState(5);
@@ -985,6 +998,16 @@ export default function NewDesignPage() {
   };
 
   // Persist current payload and navigate to 3D page.
+  const proceedTo2DLayout = () => {
+    // Clear previous design to show a blank 2D layout
+    try {
+      window.localStorage.removeItem("furnivision_design");
+    } catch {
+      // Continue navigation even if storage access fails
+    }
+    router.push("/edit-2d#design-2d-section");
+  };
+
   const proceedTo3DDesign = () => {
     const payload = getCurrentDesignPayload();
 
@@ -1221,8 +1244,8 @@ export default function NewDesignPage() {
             <header className="fixed inset-x-0 top-0 z-50 w-full rounded-none border border-[#e8e2da] border-x-0 border-t-0 bg-white/80 text-[#4d3525] shadow-[0_1px_6px_rgba(31,31,31,0.05)] backdrop-blur-md">
               <div className="mx-auto flex w-full max-w-[1400px] flex-wrap items-center justify-between gap-3 px-5 py-3 md:px-8">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#b7a087] bg-[#825a3c] text-sm font-semibold text-[#f7ebdf]">
-                    FV
+                  <div className="h-10 w-10">
+                    <Image src={logoImage} alt="FurniVision logo" width={40} height={40} />
                   </div>
                   <p className="text-xl font-semibold [font-family:Inter,sans-serif]">
                     FurniVision
@@ -1392,12 +1415,13 @@ export default function NewDesignPage() {
                 </div>
 
               <div className="mt-auto pt-6 text-center">
-                <Link
-                  href="/edit-2d#design-2d-section"
+                <button
+                  type="button"
+                  onClick={proceedTo2DLayout}
                   className="inline-block rounded-lg border border-[#6b4934] bg-[linear-gradient(135deg,#5a3e2d_0%,#825a3c_100%)] px-9 py-2.5 text-lg font-medium text-[#f7ebdf] shadow-sm transition hover:brightness-105"
                 >
                   Proceed to 2D Layout
-                </Link>
+                </button>
               </div>
               </div>
               </div>
