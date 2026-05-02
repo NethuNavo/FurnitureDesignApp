@@ -51,15 +51,8 @@ This project is inspired by real-world **interior design tools** used in modern 
 
 The project is deployed on **Vercel** for high performance and global accessibility.
 
-🔗 Live Application:  
-https://furniture-design-app-rkqx.vercel.app/login
 
----
 
-## 📸 Screenshots (Recommended)
 
-Add screenshots here to make it more professional:
 
-- Login Page UI
-- Furniture Design Dashboard
-- Room Visualization Interface
+
