@@ -1,6 +1,6 @@
 # 🪑 Furniture Design App
 
-> A premium modern web platform for designing, visualizing, and experiencing furniture layouts in real time with an elegant and interactive UI.
+ A premium modern web platform for designing, visualizing, and experiencing furniture layouts in real time with an elegant and interactive UI.
 
 ---
 
