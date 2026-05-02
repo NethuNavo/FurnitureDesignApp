@@ -1,68 +1,84 @@
-<<<<<<< HEAD
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# ================================
+# Node.js / Dependencies
+# ================================
+node_modules/
+**/node_modules/
+.pnp
 .pnp.*
+
+# Yarn
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
+# Local editor settings
+.vscode/
 
-# next.js
-/.next/
-/out/
+# ================================
+# Testing
+# ================================
+coverage/
 
-# production
-/build
+# ================================
+# Next.js
+# ================================
+.next/
+out/
+build/
 
-# misc
-.DS_Store
-*.pem
+# ================================
+# Environment variables
+# ================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# debug
+# ================================
+# Logs
+# ================================
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# ================================
+# OS files
+# ================================
+.DS_Store
+Thumbs.db
 
-# vercel
-.vercel
+# ================================
+# VSCode
+# ================================
+.vscode/
 
-# typescript
+# ================================
+# TypeScript
+# ================================
 *.tsbuildinfo
 next-env.d.ts
-=======
-# Compiled class file
-*.class
 
-# Log file
-*.log
+# ================================
+# Production / misc
+# ================================
+*.pem
 
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
+# ================================
+# Archives / binaries
+# ================================
 *.zip
-*.tar.gz
 *.rar
+*.tar.gz
+*.war
+*.ear
+*.jar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# ================================
+# Java crash logs
+# ================================
 hs_err_pid*
 replay_pid*
->>>>>>> bd7e4ca35fd201c4d0260948e814071442d8d236
