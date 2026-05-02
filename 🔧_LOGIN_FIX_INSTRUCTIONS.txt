@@ -1,0 +1,28 @@
+🔧 URGENT: LOGIN NOT WORKING - QUICK FIX
+
+The login is failing because environment variables are NOT set in Vercel.
+
+✅ WHAT TO DO:
+
+1. Read: SETUP_VERCEL.md (I created this file with step-by-step instructions)
+2. Open Vercel Dashboard: https://vercel.com
+3. Go to: Settings → Environment Variables
+4. Add 3 variables (copy from SETUP_VERCEL.md):
+   - MONGODB_URI
+   - JWT_SECRET
+   - NEXT_PUBLIC_API_URL
+5. Redeploy the app
+6. Test login at: https://furniture-design-app-rkqx.vercel.app/login
+
+✅ ALREADY DONE:
+- ✓ Code is correct
+- ✓ MongoDB connection code is working
+- ✓ JWT authentication is set up
+- ✓ API routes are properly configured
+
+❌ MISSING (you need to add):
+- Missing MONGODB_URI in Vercel
+- Missing JWT_SECRET in Vercel
+- Missing NEXT_PUBLIC_API_URL in Vercel
+
+Read SETUP_VERCEL.md for detailed step-by-step instructions!
